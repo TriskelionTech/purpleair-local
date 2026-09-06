@@ -70,6 +70,7 @@ DEFAULT_LIVE_ENTITIES = False
 # (later) as suffixes on entity unique_ids, so they need to be stable.
 AQI_CORRECTION_RAW = "raw"
 AQI_CORRECTION_EPA = "epa"
+AQI_CORRECTION_EPA_5POINT = "epa_5_point"
 AQI_CORRECTION_AQANDU = "aqandu"
 AQI_CORRECTION_LRAPA = "lrapa"
 AQI_CORRECTIONS_ALL: tuple[str, ...] = (
