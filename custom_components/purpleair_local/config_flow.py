@@ -200,6 +200,7 @@ class _InvalidResponse(Exception):
 _AQI_OPTION_LABELS: tuple[tuple[str, str], ...] = (
     (AQI_CORRECTION_RAW, "Raw (uncorrected)"),
     (AQI_CORRECTION_EPA, "US EPA (Barkjohn 2021)"),
+    (AQI_CORRECTION_EPA_5POINT, "US EPA (Barkjohn 2021) 5-point correlation"),
     (AQI_CORRECTION_AQANDU, "AQandU (University of Utah)"),
     (AQI_CORRECTION_LRAPA, "LRAPA (wood-smoke tuned)"),
 )
