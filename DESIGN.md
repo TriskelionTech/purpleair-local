@@ -403,23 +403,31 @@ Runtime behavior:
 
 ## AQI correction formulas
 
-Three corrections are implemented as pure functions in `aqi.py`. All
-take `pm_cf1` (µg/m³, from `pm2_5_cf_1`) plus `rh` (%, from
+Four corrections are implemented as pure functions in `aqi.py`. Most
+take `pm_cf1` (µg/m³, from `pm2_5_cf_1`, One takes 'pm_atm') plus `rh` (%, from
 `current_humidity`) where applicable. All return corrected µg/m³,
 clamped at 0, which is then run through the EPA 24-hour PM2.5
 breakpoint table to produce an integer AQI.
 
 - **EPA (Barkjohn et al., 2021):**
   `corrected = 0.524 * pm_cf1 - 0.0862 * rh + 5.75`
+- ** EPA (Barkjon et al., 2021) 5-point correction formula:**
+       '    if pm_atm < 30:
+              corrected = 0.524 * pm_atm - 0.0862 * rh_pct + 5.75
+          elif pm_atm < 50:
+              corrected = (0.786 * (pm_atm/20 - 3/2) + 0.524*(1-(pm_atm/20 - 3/2))) * pm_atm - 0.0862 * rh_pct + 5.75
+          elif pm_atm < 210:
+              corrected = 0.786 * pm_atm - 0.0862* rh_pct +5.75
+          elif pm_atm < 260:
+              corrected = (0.69*(pm_atm/50 - 21/5)+0.786*(1-(pm_atm/50-21/5)))*pm_atm - 0.0862*rh_pct*(1-(pm_atm/50-21/5))+2.966*(pm_atm/50-21/5)+5.75*(1-(pm_atm/50-21/5))+8.84*(10^-4)*(pm_atm^2)*(pm_atm/50-21/5)
+          else:
+              corrected = 2.966+0.69*pm_atm+8.84*(10^-4)*(pm_atm^2)'
 - **AQandU (University of Utah):** `corrected = 0.778 * pm_cf1 + 2.65`
 - **LRAPA (Lane Regional Air Protection Agency, OR):**
   `corrected = 0.5 * pm_cf1 - 0.66` (wood-smoke-tuned; under-corrects
   in non-smoke conditions)
 
-If the EPA's correction evolves further (a 5-piece extension for very
-high concentrations already exists and is what the AirNow Fire and
-Smoke Map uses today), we add it as an additional option rather than
-silently changing what "EPA" means in this integration.
+5-point EPA calibration has been added above
 
 ### AQI breakpoint table
 
