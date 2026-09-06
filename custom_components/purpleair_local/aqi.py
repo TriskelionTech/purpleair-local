@@ -16,6 +16,7 @@ align it with regulatory monitors:
     AirNow Fire and Smoke Map. Accurate to ~250 µg/m³; a piecewise
     extension exists for higher concentrations during heavy smoke and
     can be added later as a separate option.
+  - **EPA 5-point - Added the 5-point calculation mentioned above to match AirNow Fire Map
   - **AQandU** — University of Utah's correction, popular among home
     users in the western US.
   - **LRAPA** — Lane Regional Air Protection Agency (Oregon). Tuned
@@ -27,10 +28,11 @@ who want what the sensor itself reports without any post-processing.
 
 Inputs
 ------
-All corrections take `pm_cf1` (the `pm2_5_cf_1` field from the sensor).
+Most corrections take `pm_cf1` (the `pm2_5_cf_1` field from the sensor).
 This is the "CF=1" density estimate, which is what every published
 correction was fit against. RH is in percent, matching the sensor's
 `current_humidity` field. Negative corrected values are clamped to 0.
+EPA 5-point uses the ATM field from the sensor per the information from the Barkjon paper
 
 AQI breakpoints
 ---------------
@@ -231,7 +233,23 @@ def correct_epa(pm_cf1: float, rh_pct: float) -> float:
     """
     corrected = 0.524 * pm_cf1 - 0.0862 * rh_pct + 5.75
     return corrected if corrected > 0.0 else 0.0
+  
+def correct_epa_5point(pm_atm: float, rh_pct: float) -> float:
+    """Barkjohn 2021 EPA correction.
 
+    5-point calibration used by fire map
+    """
+    if pm_atm < 30:
+        corrected = 0.524 * pm_atm - 0.0862 * rh_pct + 5.75
+    elif pm_atm < 50:
+        corrected = (0.786 * (pm_atm/20 - 3/2) + 0.524*(1-(pm_atm/20 - 3/2))) * pm_atm - 0.0862 * rh_pct + 5.75
+    elif pm_atm < 210:
+        corrected = 0.786 * pm_atm - 0.0862* rh_pct +5.75
+    elif pm_atm < 260:
+        corrected = (0.69*(pm_atm/50 - 21/5)+0.786*(1-(pm_atm/50-21/5)))*pm_atm - 0.0862*rh_pct*(1-(pm_atm/50-21/5))+2.966*(pm_atm/50-21/5)+5.75*(1-(pm_atm/50-21/5))+8.84*(10^-4)*(pm_atm^2)*(pm_atm/50-21/5)
+    else:
+        corrected = 2.966+0.69*pm_atm+8.84*(10^-4)*(pm_atm^2)
+    return corrected if corrected > 0.0 else 0.0
 
 def correct_aqandu(pm_cf1: float) -> float:
     """University of Utah AQandU correction."""
@@ -300,6 +318,12 @@ def aqi_epa(pm_cf1: float | None, rh_pct: float | None) -> int | None:
         return None
     return pm25_to_aqi(correct_epa(pm_cf1, rh_pct))
 
+
+def aqi_epa_5point(pm_atm: float | None, rh_pct: float | None) -> int | None:
+    """AQI of the EPA-corrected density using 5-point algorithm. Returns None if any input missing."""
+    if pm_atm is None or rh_pct is None:
+        return None
+    return pm25_to_aqi(correct_epa_5point(pm_atm, rh_pct))
 
 def aqi_aqandu(pm_cf1: float | None) -> int | None:
     """AQI of the AQandU-corrected density."""
