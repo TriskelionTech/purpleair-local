@@ -303,13 +303,14 @@ def _aqi_corrected_pm(
     derivation as `native_value`, so the colour and the number can't
     drift out of sync.
     """
-    if correction == AQI_CORRECTION_RAW:
-        return _channel_atm(
+    atm = _channel_atm(
             reading,
             channel,
             disagreement_min_diff_ugm3=disagreement_min_diff_ugm3,
             disagreement_min_pct=disagreement_min_pct,
         )
+    if correction == AQI_CORRECTION_RAW:
+        return atm
     cf1 = _channel_cf1(
         reading,
         channel,
@@ -331,7 +332,17 @@ def _aqi_corrected_pm(
         if rh is None:
             return None
         return correct_epa(cf1, rh)
+    if correction == AQI_CORRECTION_EPA_5POINT:
+        rh = (
+            reading.environment.humidity_pct
+            if reading.environment is not None
+            else None
+        )
+        if rh is None:
+            return None
+        return correct_epa_5point(atm, rh)
     return None
+
 
 
 class _AqiEntity(PurpleAirEntity, SensorEntity):
