@@ -75,12 +75,14 @@ AQI_CORRECTION_LRAPA = "lrapa"
 AQI_CORRECTIONS_ALL: tuple[str, ...] = (
     AQI_CORRECTION_RAW,
     AQI_CORRECTION_EPA,
+    AQI_CORRECTION_EPA_5POINT,
     AQI_CORRECTION_AQANDU,
     AQI_CORRECTION_LRAPA,
 )
 DEFAULT_AQI_CORRECTIONS: tuple[str, ...] = (
     AQI_CORRECTION_RAW,
     AQI_CORRECTION_EPA,
+    AQI_CORRECTION_EPA_5POINT,
 )
 
 # Channel disagreement defaults match PurpleAir's own data-quality
