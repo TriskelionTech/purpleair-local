@@ -73,12 +73,14 @@ from .aqi import (
     aqi_band,
     correct_aqandu,
     correct_epa,
+    correct_epa_5point,
     correct_lrapa,
     pm25_to_aqi,
 )
 from .const import (
     AQI_CORRECTION_AQANDU,
     AQI_CORRECTION_EPA,
+    AQI_CORRECTION_EPA_5POINT,
     AQI_CORRECTION_LRAPA,
     AQI_CORRECTION_RAW,
     CONF_AQI_COLOR_SCHEME,
@@ -275,6 +277,7 @@ class _PmMassEntity(PurpleAirEntity, SensorEntity):
 _AQI_LABELS: dict[str, str] = {
     AQI_CORRECTION_RAW: "AQI (raw)",
     AQI_CORRECTION_EPA: "AQI (EPA)",
+    AQI_CORRECTION_EPA_5POINT: "AQI (EPA - 5 Point)",
     AQI_CORRECTION_AQANDU: "AQI (AQandU)",
     AQI_CORRECTION_LRAPA: "AQI (LRAPA)",
 }
